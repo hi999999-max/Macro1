@@ -1,0 +1,100 @@
+-- Function to create the GUI
+local function createGUI()
+    local ScreenGui = Instance.new("ScreenGui")
+    local Button = Instance.new("TextButton")
+
+    ScreenGui.Name = "ScreenGui"
+    ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+    Button.Name = "Macro"
+    Button.Parent = ScreenGui
+    Button.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+    Button.Position = UDim2.new(0.5, -50, 0.5, -25)
+    Button.Size = UDim2.new(0, 100, 0, 50)
+    Button.Text = "Macro"
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.TextSize = 18
+
+    -- Variables and services
+    local RunService = game:GetService("RunService")
+    local player = game.Players.LocalPlayer
+    local camera = game.Workspace.CurrentCamera
+    local isFacingForward = false
+
+    -- Function to update the player's orientation to face the camera direction
+    local function faceForward()
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+        local currentPosition = humanoidRootPart.Position
+
+        -- Get the camera's look vector and ignore the Y component to prevent tilting
+        local lookVector = camera.CFrame.LookVector
+        local flatLookVector = Vector3.new(lookVector.X, 0, lookVector.Z).Unit
+
+        -- Update the orientation while preserving the vertical position
+        local newCFrame = CFrame.new(currentPosition, currentPosition + flatLookVector)
+        humanoidRootPart.CFrame = newCFrame
+    end
+
+    -- Function to handle the loop of facing forward and releasing
+    local function loopFaceForward()
+        while isFacingForward do
+            faceForward() -- Face forward instantly
+            wait(0) -- Short delay between facing forward (adjust as needed)
+        end
+    end
+
+    -- Button click event to toggle facing forward
+    Button.MouseButton1Click:Connect(function()
+        isFacingForward = not isFacingForward -- Toggle facing forward
+        if isFacingForward then
+            Button.Text = "Stop Macro"
+            loopFaceForward()
+        else
+            Button.Text = "Macro"
+        end
+    end)
+
+    -- Dragging functionality (for mobile and desktop)
+    local dragging, dragInput, mousePos, framePos
+
+    Button.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            mousePos = input.Position
+            framePos = Button.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    Button.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+
+    Button.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - mousePos
+            Button.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+-- Create the GUI initially
+createGUI()
+
+-- Respawn the GUI when the character respawns
+local player = game.Players.LocalPlayer
+
+player.CharacterAdded:Connect(function()
+    -- Wait a bit to ensure character is fully loaded
+    wait(0.5)
+    -- Recreate the GUI
+    createGUI()
+end)
