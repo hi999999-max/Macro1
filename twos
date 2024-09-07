@@ -96,13 +96,3 @@ end
 
 -- Create the GUI initially
 createGUI()
-
--- Respawn the GUI when the character respawns (GUI won't disappear with ResetOnSpawn set to false)
-local player = game.Players.LocalPlayer
-
-player.CharacterAdded:Connect(function()
-    -- Wait a bit to ensure character is fully loaded
-    wait(0.5)
-    -- Recreate the GUI
-    createGUI()
-end)
