@@ -1,7 +1,7 @@
 -- Function to create the GUI
 local function createGUI()
     -- Check if the GUI already exists to prevent duplicates
-    if game.Players.LocalPlayer.PlayerGui:FindFirstChild("ScreenGui") then
+    if game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("ScreenGui") then
         return -- Exit the function if the GUI already exists
     end
 
@@ -102,4 +102,9 @@ end
 -- Create the GUI initially (only once)
 createGUI()
 
--- No need to recreate the GUI when the character respawns since ResetOnSpawn is false
+-- Prevent GUI recreation on respawn
+local player = game.Players.LocalPlayer
+player.CharacterAdded:Connect(function()
+    -- No need to recreate the GUI, it persists through respawn
+    -- You can add any character-specific logic here if needed
+end)
