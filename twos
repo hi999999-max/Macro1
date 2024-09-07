@@ -1,5 +1,10 @@
 -- Function to create the GUI
 local function createGUI()
+    -- Check if the GUI already exists to prevent duplicates
+    if game.Players.LocalPlayer.PlayerGui:FindFirstChild("ScreenGui") then
+        return -- Exit the function if the GUI already exists
+    end
+
     -- Create the ScreenGui
     local ScreenGui = Instance.new("ScreenGui")
     local Button = Instance.new("TextButton")
@@ -94,5 +99,7 @@ local function createGUI()
     end)
 end
 
--- Create the GUI initially
+-- Create the GUI initially (only once)
 createGUI()
+
+-- No need to recreate the GUI when the character respawns since ResetOnSpawn is false
